@@ -51,15 +51,18 @@ app.post("/deobfuscate", async (req, res) => {
       return res.status(404).json({ error: "Function block not found" });
     }
 
-    const extractedFunctions = find_all_functions(extractedCode[0], /function\s+[^\s]+\(\s*n\s*\)\s*\{/g);
+    const extractedFunctions = find_all_functions(extractedCode[0], /function\s+\w\(\s*\w+(\s*,\s*\w+)*\s*\)\s*\{/g);
     let decodeFunction;
+    let encodeFunction;
         for (let i=0; i<extractedFunctions.length; i++){
                         if(extractedFunctions[i].includes("decodeURIComponent")){
                                 decodeFunction = extractedFunctions[i];
-                                break;
+                        }
+                        if(extractedFunctions[i].includes("encodeURIComponent")){
+                                encodeFunction = extractedFunctions[i];
                         }
         }
-    res.json({ result: extractedCode, function: extractedFunctions, decode: decodeFunction || "Not Found" });
+    res.json({ result: extractedCode, function: extractedFunctions, encode: encodeFunction,decode: decodeFunction || "Not Found" });
   } catch (error) {
     console.error("❌ Error:", error.message);
     res.status(500).json({ error: "Failed to process JavaScript" });
